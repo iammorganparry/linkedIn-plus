@@ -1,12 +1,9 @@
 import { AppMessageTypes, TabUpdatedPayload } from "@/types/messages";
-import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { getLinkedInAlias } from "./utils";
-import { linkedInProfile } from "@/routes";
 
 export const useAliasListener = () => {
   const [alias, setAlias] = useState<string | null>(null);
-  const navigate = useNavigate({ from: linkedInProfile.path });
 
   const listenForRouterChanges = useCallback(() => {
     console.log("App -- listenForRouterChanges");

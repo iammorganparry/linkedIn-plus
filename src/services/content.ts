@@ -15,7 +15,7 @@ export class ContentMessenger implements IContentMessenger {
   private onMessage(
     message: AppMessageEvents,
     sender: chrome.runtime.MessageSender,
-    sendResponse: (response: any) => void
+    sendResponse: (response: unknown) => void
   ) {
     try {
       console.log("ContentMessenger onMessage", message, sender);

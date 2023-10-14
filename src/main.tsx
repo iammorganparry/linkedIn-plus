@@ -7,7 +7,6 @@ import { ShadowRootEventHandler } from "./services/shadowRootEventHandler";
 import { ContentMessenger } from "./services/content";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./routes";
-import { ClerkProvider } from "@clerk/clerk-react";
 
 const addStyles = (root: HTMLDivElement) => {
   root.setAttribute("id", "linkedInPlus");
@@ -19,9 +18,6 @@ const addStyles = (root: HTMLDivElement) => {
   root.style.right = "50px";
   root.style.zIndex = "9999";
 };
-
-// @ts-expect-error - this is a global variable
-const clerkPubKey = import.meta.VITE_CLERK_PUBLISHABLE_KEY;
 
 class LinkedInPlus extends HTMLElement {
   private shadow: ShadowRoot;
