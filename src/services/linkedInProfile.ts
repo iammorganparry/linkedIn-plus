@@ -39,7 +39,8 @@ export class LinkedInPublicProfileService {
   }
 
   private csrfToken(): string {
-    const cookies = document.cookie.split("; ");
+    const cookies = document.cookie.replace(/\s/g, "").split(";");
+    console.log("cookies", cookies);
     const csrfCookie = cookies.find((cookie) =>
       cookie.startsWith("JSESSIONID")
     );

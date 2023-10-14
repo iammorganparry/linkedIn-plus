@@ -46,7 +46,7 @@ export class BackgroundMessenger implements IMessenger {
     }
   }
 
-  private sendTabMessage(tabId: number, message: AppMessageEvents) {
+  public sendTabMessage(tabId: number, message: AppMessageEvents) {
     chrome.tabs.sendMessage(tabId, message);
   }
 }
