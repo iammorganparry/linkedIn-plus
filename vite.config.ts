@@ -1,15 +1,15 @@
-import { defineConfig } from 'vite'
-import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
-import react from '@vitejs/plugin-react'
-import { crx } from '@crxjs/vite-plugin'
-import manifest from './manifest.json'
+import { defineConfig } from "vite";
+import path from "path";
+import react from "@vitejs/plugin-react";
+import { crx } from "@crxjs/vite-plugin";
+import manifest from "./manifest.config";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    crx({ manifest }),
-    vanillaExtractPlugin({
-      identifiers: ({ hash }) => `linkedInPlus_${hash}`
-    }),
-  ],
-})
+  plugins: [react(), crx({ manifest })],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  envDir: ".env",
+});
