@@ -42,7 +42,7 @@ export class BackgroundMessenger implements IMessenger {
         });
       }
     } catch (error) {
-      console.error("onTabUpdated error", error);
+      console.log("onTabUpdated error", error);
     }
   }
 

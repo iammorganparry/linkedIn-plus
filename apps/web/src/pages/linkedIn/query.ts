@@ -48,9 +48,12 @@ export const useLinkedInProfile = (alias?: string) => {
   useEffect(() => {
     if (alias) {
       setLoading(true);
-      getProfileData(alias);
+      getProfileData(alias, ["position", "profile", "education"]);
     }
   }, [alias]);
 
+  console.log({
+    data,
+  });
   return { data, isFetching: loading };
 };

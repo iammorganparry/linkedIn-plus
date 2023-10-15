@@ -81,6 +81,10 @@ export class LinkedInPublicProfileService {
       data.data.included,
       includes
     );
+
+    console.log({
+      response,
+    });
     if (!response) {
       throw new Error("No profile data found");
     }

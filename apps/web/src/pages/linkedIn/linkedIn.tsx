@@ -1,11 +1,12 @@
 import { UserCard } from "@/components/cards/user";
 import { useLinkedInProfile } from "./query";
+import { CenterSpinner } from "@/components/ui/center-spinner";
 
 export const LinkedInPage = ({ alias }: { alias: string }) => {
   const { data, isFetching } = useLinkedInProfile(alias);
   console.log({ alias });
   if (isFetching && !data) {
-    return <div>Loading...</div>;
+    return <CenterSpinner />;
   }
 
   const name = data?.profile?.firstName + " " + data?.profile?.lastName;
