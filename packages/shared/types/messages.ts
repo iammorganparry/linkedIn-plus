@@ -17,6 +17,9 @@ export type FetchLinkedInProfilePayload = {
   includes: LinkedInProfileIncludes[];
 };
 
+type PartialRecord<K extends keyof any, T> = {
+  [P in K]?: T;
+};
 export type AppMessageEvents<TType extends AppMessageTypes = AppMessageTypes> =
   {
     type: TType;
@@ -25,7 +28,7 @@ export type AppMessageEvents<TType extends AppMessageTypes = AppMessageTypes> =
       : TType extends AppMessageTypes.FetchLinkedInProfile
       ? FetchLinkedInProfilePayload
       : TType extends AppMessageTypes.PostLinkedInProfile
-      ? Record<LinkedInProfileIncludes, LinkedInProfile>
+      ? PartialRecord<LinkedInProfileIncludes, LinkedInProfile>
       : TType extends AppMessageTypes.FetchCurrentUrl
       ? Partial<TabUpdatedPayload>
       : never;

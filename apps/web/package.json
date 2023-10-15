@@ -13,6 +13,7 @@
     "@clerk/clerk-react": "^4.26.4",
     "@linkedinplus/shared": "*",
     "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-select": "^2.0.0",
     "@tanstack/react-query": "^4.36.1",
     "@tanstack/react-router": "^0.0.1-beta.194",
     "class-variance-authority": "^0.7.0",

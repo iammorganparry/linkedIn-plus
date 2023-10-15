@@ -6,6 +6,7 @@ export default defineConfig({
     alias: {
       "@": "src",
     },
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
     setupFiles: ["./src/setupTests.ts"],
   },
 });

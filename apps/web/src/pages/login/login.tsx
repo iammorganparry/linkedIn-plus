@@ -8,9 +8,10 @@ export const LoginPage = () => {
     email: "",
     password: "",
   });
+
   const { isLoaded, signIn, setActive } = useSignIn();
+
   const handleLogin = async () => {
-    console.log("handleLogin");
     try {
       const url = await signIn?.create({
         identifier: email,
