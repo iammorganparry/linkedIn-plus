@@ -1,20 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ContentMessenger } from "../content";
-import { AppMessageTypes } from "@/types/messages";
-
-// mock chrome
-global.chrome = {
-  runtime: {
-    // @ts-ignore - we don't need to mock the whole chrome API
-    onMessage: {
-      addListener: vi.fn(),
-    },
-  },
-  tabs: {
-    // @ts-ignore - we don't need to mock the whole chrome API
-    sendMessage: vi.fn(),
-  },
-};
+import { AppMessageTypes } from "@linkedinplus/shared";
 
 describe("ContentMessenger", () => {
   let contentMessenger: ContentMessenger;

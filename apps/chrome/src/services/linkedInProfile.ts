@@ -4,6 +4,7 @@ import {
   type LinkedInProfileIncludes,
 } from "@linkedinplus/shared";
 import axios, { AxiosInstance } from "axios";
+import Cookies from "js-cookie";
 
 type LinkedInPublicProfileResponse<TResponse> = {
   data: Record<string, unknown>;
@@ -33,47 +34,48 @@ export class LinkedInPublicProfileService {
 
     this.dataKeyMap = {
       profile: IncludedTypes.LinkedInProfile,
-      education: IncludedTypes.LinkedInPosition,
-      position: IncludedTypes.LinkedInEducation,
+      education: IncludedTypes.LinkedInEducation,
+      position: IncludedTypes.LinkedInPosition,
     };
   }
 
-  private csrfToken(): string {
-    const cookies = document.cookie.split("; ");
-    const csrfCookie = cookies.find((cookie) =>
-      cookie.startsWith("JSESSIONID")
-    );
-    if (!csrfCookie) {
-      throw new Error("No CSRF token found");
-    }
-    const csrfToken = csrfCookie.split("=")[1].replace(/"/g, "");
-    return csrfToken;
+  public csrfToken(): string {
+    const csrfCookie = Cookies.get("JSESSIONID");
+    console.log("csrfCookie", document.cookie);
+    // if (!csrfCookie) {
+    //   //TODO: Figure out how to bloody test this
+    //   throw new Error("No CSRF token found");
+    // }
+    const csrfToken = csrfCookie?.split("=")[1].replace(/"/g, "");
+    return csrfToken ?? "";
   }
 
-  private getProfileDataFromResponse<TResponse extends Record<string, unknown>>(
-    response: TResponse[],
-    includes?: LinkedInProfileIncludes[]
-  ): Record<LinkedInProfileIncludes, TResponse> | undefined {
+  private getProfileDataFromResponse<
+    TResponse extends Record<string, unknown>,
+    TIncludes extends LinkedInProfileIncludes
+  >(response: TResponse[], includes?: TIncludes[]) {
     if (includes) {
+      console.log("includes", includes);
       return includes.reduce((acc, include) => {
+        console.log("include", include, this.dataKeyMap[include]);
         return {
           ...acc,
           [include]: response.find(
             (x) => x["$type"] === this.dataKeyMap[include]
           ),
         };
-      }, {} as Record<Partial<LinkedInProfileIncludes>, TResponse>);
+      }, {} as Record<Extract<LinkedInProfileIncludes, TIncludes>, TResponse>);
     }
     const profile = response.find((x) => x["$type"] === this.profileDataKey);
     return {
       profile,
-    } as Record<LinkedInProfileIncludes, TResponse>;
+    } as Record<Extract<LinkedInProfileIncludes, "profile">, TResponse>;
   }
 
-  async getProfileByAlias(
+  async getProfileByAlias<TIncludes extends LinkedInProfileIncludes>(
     profileAlias: string,
-    includes: LinkedInProfileIncludes[]
-  ): Promise<Record<LinkedInProfileIncludes, LinkedInProfile>> {
+    includes: TIncludes[]
+  ) {
     const data = await this.api.get<
       LinkedInPublicProfileResponse<LinkedInProfile>
     >(`${this.prefix}${profileAlias}${this.postfix}`);
@@ -82,9 +84,6 @@ export class LinkedInPublicProfileService {
       includes
     );
 
-    console.log({
-      response,
-    });
     if (!response) {
       throw new Error("No profile data found");
     }

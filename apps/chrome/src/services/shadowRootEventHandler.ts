@@ -52,18 +52,24 @@ export class ShadowRootEventHandler {
     });
   }
 
+  private handleFetchCurrentUrl(
+    payload: AppMessageEvents<AppMessageTypes.FetchCurrentUrl>["payload"]
+  ) {
+    console.log("fetch current url -- ShadowRootEventHandler", payload);
+    this.postMessage({
+      type: AppMessageTypes.FetchCurrentUrl,
+      payload: {
+        changeInfo: {
+          url: window.location.href,
+        },
+      },
+    });
+  }
+
   private onMessage(event: MessageEvent<AppMessageEvents>) {
     try {
       if (isOfType(event.data, AppMessageTypes.FetchCurrentUrl)) {
-        console.log("fetch current url -- ShadowRootEventHandler");
-        this.postMessage({
-          type: AppMessageTypes.FetchCurrentUrl,
-          payload: {
-            changeInfo: {
-              url: window.location.href,
-            },
-          },
-        });
+        this.handleFetchCurrentUrl(event.data.payload);
       }
       if (isOfType(event.data, AppMessageTypes.TabUpdated)) {
         this.handleTabUpdated(event.data.payload);

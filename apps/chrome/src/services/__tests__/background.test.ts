@@ -1,7 +1,6 @@
-import { beforeEach, afterEach, expect, vi } from "vitest";
+import { beforeEach, afterEach, expect, vi, describe, it } from "vitest";
 import { BackgroundMessenger } from "../background";
-import { describe, it } from "node:test";
-import { AppMessageTypes } from "@/types/messages";
+import { AppMessageTypes } from "@linkedinplus/shared";
 
 describe("BackgroundMessenger", () => {
   let backgroundMessenger: BackgroundMessenger;
@@ -11,7 +10,7 @@ describe("BackgroundMessenger", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("init", () => {
@@ -35,9 +34,9 @@ describe("BackgroundMessenger", () => {
       expect(sendTabMessageSpy).not.toHaveBeenCalled();
     });
 
-    it("should send message if status is complete and tabId is defined", () => {
+    it("should send message if status is complete and tabId is defined and if tab is active", async () => {
       const sendTabMessageSpy = vi.spyOn(backgroundMessenger, "sendTabMessage");
-      backgroundMessenger.onTabUpdated(123, { status: "complete" });
+      await backgroundMessenger.onTabUpdated(123, { status: "complete" });
       expect(sendTabMessageSpy).toHaveBeenCalled();
     });
   });

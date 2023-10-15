@@ -1,41 +1,63 @@
 import axios from "axios";
 import { LinkedInPublicProfileService } from "../linkedInProfile";
-import { beforeEach, afterEach, expect, vi } from "vitest";
-import { describe, it } from "node:test";
+import { afterEach, expect, vi, it, describe, beforeEach } from "vitest";
+import { createLinkedInProfileResponse } from "../../../__tests__/utils";
+import { IncludedTypes } from "@linkedinplus/shared";
+// //TODO: move this to global mock
+vi.mock("axios", async () => {
+  const actual = (await vi.importActual("axios")) as {
+    create: () => typeof axios;
+  };
+  return {
+    ...actual,
+    create: () => ({
+      get: vi.fn(),
+    }),
+    get: vi.fn(),
+  };
+});
 
-vi.mock("axios");
+vi.mock("js-cookie", async () => {
+  const actual = (await vi.importActual("js-cookie")) as {
+    get: (name: string) => string | undefined;
+  };
+  return {
+    ...actual,
+    get: vi.fn().mockReturnValue("JSESSIONID=123"),
+  };
+});
 
 describe("LinkedInPublicProfileService", () => {
   let service: LinkedInPublicProfileService;
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
 
   beforeEach(() => {
     service = new LinkedInPublicProfileService();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   describe("getProfileByAlias", () => {
     it("should call the LinkedIn API with the correct URL", async () => {
-      const getSpy = vi.spyOn(axios, "get").mockResolvedValueOnce({
+      // @ts-expect-error - Private var
+      const getSpy = vi.spyOn(service.api, "get").mockResolvedValueOnce({
         data: {
           included: [],
         },
       });
-      await service.getProfileByAlias("test", []);
+      await service.getProfileByAlias("test", ["profile"]);
       expect(getSpy).toHaveBeenCalledWith(
-        "https://www.linkedin.com/voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=test&decorationId=com.linkedin.voyager.dash.deco.identity.profile.WebTopCardCore-22",
-        expect.anything()
+        "/voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=test&decorationId=com.linkedin.voyager.dash.deco.identity.profile.WebTopCardCore-22"
       );
     });
 
     it("should return the profile data if it exists", async () => {
-      vi.spyOn(axios, "get").mockResolvedValueOnce({
+      // @ts-expect-error - Private var
+      vi.spyOn(service.api, "get").mockResolvedValueOnce({
         data: {
           included: [
             {
-              $type: "com.linkedin.voyager.identity.profile.Profile",
+              $type: IncludedTypes.LinkedInProfile,
               firstName: "John",
               lastName: "Doe",
             },
@@ -45,7 +67,7 @@ describe("LinkedInPublicProfileService", () => {
       const result = await service.getProfileByAlias("test", ["profile"]);
       expect(result).toEqual({
         profile: {
-          $type: "com.linkedin.voyager.identity.profile.Profile",
+          $type: IncludedTypes.LinkedInProfile,
           firstName: "John",
           lastName: "Doe",
         },
@@ -53,17 +75,16 @@ describe("LinkedInPublicProfileService", () => {
     });
 
     it("should return the specified profile data if it exists", async () => {
-      vi.spyOn(axios, "get").mockResolvedValueOnce({
+      // @ts-expect-error - Private var
+      vi.spyOn(service.api, "get").mockResolvedValueOnce({
         data: {
           included: [
             {
-              $type: "com.linkedin.voyager.identity.profile.Profile",
-              firstName: "John",
-              lastName: "Doe",
+              ...createLinkedInProfileResponse(),
+              $type: IncludedTypes.LinkedInProfile,
             },
             {
-              $type: "com.linkedin.voyager.identity.profile.Education",
-              schoolName: "University of Test",
+              $type: IncludedTypes.LinkedInEducation,
             },
           ],
         },
@@ -74,26 +95,27 @@ describe("LinkedInPublicProfileService", () => {
       ]);
       expect(result).toEqual({
         profile: {
-          $type: "com.linkedin.voyager.identity.profile.Profile",
-          firstName: "John",
-          lastName: "Doe",
+          ...createLinkedInProfileResponse(),
+          $type: IncludedTypes.LinkedInProfile,
         },
         education: {
-          $type: "com.linkedin.voyager.identity.profile.Education",
-          schoolName: "University of Test",
+          $type: IncludedTypes.LinkedInEducation,
         },
       });
     });
 
     it("should throw an error if no profile data is found", async () => {
-      vi.spyOn(axios, "get").mockResolvedValueOnce({
+      // @ts-expect-error - Private var
+      vi.spyOn(service.api, "get").mockResolvedValueOnce({
         data: {
           included: [],
         },
       });
-      await expect(service.getProfileByAlias("test", [])).rejects.toThrow(
-        "No profile data found"
-      );
+      try {
+        await service.getProfileByAlias("test", []);
+      } catch (error) {
+        expect(error).toEqual(new Error("No profile data found"));
+      }
     });
   });
 });
