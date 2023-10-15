@@ -29,7 +29,8 @@
     "src/global.d.ts",
     "vite-env.d.ts",
     "tsconfig.node.json",
-    "tsconfig.json"
+    "tsconfig.json",
+    "setupTests.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

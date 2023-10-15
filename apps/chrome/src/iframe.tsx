@@ -44,12 +44,14 @@ export const Iframe = (props: IframeProps) => {
             justifyContent: "center",
             alignItems: "center",
           }}
+          data-testid="drag-handle"
         >
           <RxDragHandleHorizontal
             style={{ color: "#52525b", fontSize: "30px", marginLeft: 4 }}
           />
         </div>
         <iframe
+          data-testid="iframe"
           ref={iframeRef}
           src={IFRAME_URL}
           style={{ ...iframeStyled, borderRadius: "0 0 10px 10px" }}

@@ -41,13 +41,11 @@ export class LinkedInPublicProfileService {
 
   public csrfToken(): string {
     const csrfCookie = Cookies.get("JSESSIONID");
-    console.log("csrfCookie", document.cookie);
     // if (!csrfCookie) {
     //   //TODO: Figure out how to bloody test this
     //   throw new Error("No CSRF token found");
     // }
-    const csrfToken = csrfCookie?.split("=")[1].replace(/"/g, "");
-    return csrfToken ?? "";
+    return csrfCookie ?? "";
   }
 
   private getProfileDataFromResponse<

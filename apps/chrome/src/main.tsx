@@ -7,7 +7,7 @@ import { ContentMessenger } from "./services/content";
 import { Iframe } from "./iframe";
 import { profileService } from "./services/linkedInProfile";
 
-class LinkedInPlus extends HTMLElement {
+export class LinkedInPlus extends HTMLElement {
   private shadow: ShadowRoot;
   constructor() {
     super();
