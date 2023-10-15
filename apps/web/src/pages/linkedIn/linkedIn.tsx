@@ -11,7 +11,7 @@ export const LinkedInPage = ({ alias }: { alias: string }) => {
 
   const name = data?.profile?.firstName + " " + data?.profile?.lastName;
   const title = data?.profile?.headline ?? "";
-  const hero = `${data?.profile.backgroundPicture?.displayImageReference?.vectorImage.rootUrl}${data?.profile.backgroundPicture.displayImageReference?.vectorImage.artifacts[1].fileIdentifyingUrlPathSegment}`;
+  const hero = `${data?.profile?.backgroundPicture?.displayImageReference?.vectorImage.rootUrl}${data?.profile?.backgroundPicture.displayImageReference?.vectorImage.artifacts[1].fileIdentifyingUrlPathSegment}`;
   const avatarImage = `${data?.profile?.profilePicture?.displayImageReference?.vectorImage.rootUrl}${data?.profile?.profilePicture?.displayImageReference?.vectorImage?.artifacts[1].fileIdentifyingUrlPathSegment}`;
   return (
     <UserCard

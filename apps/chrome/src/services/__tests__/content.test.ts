@@ -28,7 +28,7 @@ describe("ContentMessenger", () => {
     };
     const sendResponse = vi.fn();
     contentMessenger["sendMessage"] = vi.fn();
-    // @ts-ignore - we don't need to mock the whole chrome API
+    // @ts-expect-error - Private method
     contentMessenger["onMessage"](message, { tab: { id: 123 } }, sendResponse);
     expect(sendResponse).toHaveBeenCalledWith({ received: true });
     expect(contentMessenger["sendMessage"]).toHaveBeenCalledWith(message);

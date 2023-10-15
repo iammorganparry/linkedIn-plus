@@ -16,7 +16,6 @@ global.chrome = {
     sendMessage: vi.fn(),
   },
   runtime: {
-    // @ts-ignore - we don't need to mock the whole chrome API
     onMessage: {
       addListener: vi.fn(),
     },

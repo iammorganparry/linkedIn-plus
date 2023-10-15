@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, MessageCircle, MessageCircleIcon } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 type UserCardProps = {
   heroImage: string;
