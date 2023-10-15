@@ -13,5 +13,8 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "preview": "vite preview"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.15"
   }
 }
