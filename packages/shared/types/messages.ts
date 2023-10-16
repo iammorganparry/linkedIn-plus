@@ -5,6 +5,7 @@ export enum AppMessageTypes {
   FetchLinkedInProfile = "fetchLinkedInProfile",
   PostLinkedInProfile = "postLinkedInProfile",
   FetchCurrentUrl = "fetchCurrentUrl",
+  OpenMessageModal = "openMessageModal",
 }
 
 export type TabUpdatedPayload = {

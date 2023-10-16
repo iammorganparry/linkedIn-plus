@@ -6,4 +6,10 @@ declare global {
       import("@linkedinplus/shared/types/messages").TabUpdatedPayload
     >;
   }
+
+  interface HTMLElementEventMap
+    extends ElementEventMap,
+      GlobalEventHandlersEventMap {
+    openMessageModal: CustomEvent<null>;
+  }
 }

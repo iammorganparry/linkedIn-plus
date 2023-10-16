@@ -1,17 +1,17 @@
-import { ShadowRootEventHandler } from "../shadowRootEventHandler";
 import { LinkedInPublicProfileService } from "../linkedInProfile";
 import { describe } from "node:test";
 import { expect, it, vi } from "vitest";
 import { createLinkedInProfileResponse } from "../../../__tests__/utils";
 import { AppMessageEvents, AppMessageTypes } from "@linkedinplus/shared";
+import { ShadowRootMessageHandler } from "../shadowRootMessageHandler";
 
 const mockService = {
   getProfileByAlias: vi.fn(),
 } as unknown as LinkedInPublicProfileService;
 
-const handler = new ShadowRootEventHandler(mockService);
+const handler = new ShadowRootMessageHandler(mockService);
 
-describe("ShadowRootEventHandler", () => {
+describe("ShadowRootMessageHandler", () => {
   describe("listen", () => {
     it("should add a message event listener", () => {
       const addEventListenerSpy = vi.spyOn(window, "addEventListener");
@@ -148,6 +148,21 @@ describe("ShadowRootEventHandler", () => {
       expect(handleFetchCurrentUrlSpy).toHaveBeenCalled();
     });
 
+    it("should call handleOpenMessageModal if the message type is openMessageModal", async () => {
+      const handleFetchCurrentUrlSpy = vi.spyOn(
+        handler,
+        // @ts-expect-error - Private method
+        "handleOpenMessageModal"
+      );
+      // @ts-expect-error - Private method
+      await handler.onMessage({
+        data: {
+          type: AppMessageTypes.OpenMessageModal,
+        },
+      } as MessageEvent);
+      expect(handleFetchCurrentUrlSpy).toHaveBeenCalled();
+    });
+
     it("should call handleTabUpdated if the message type is TabUpdated", async () => {
       // @ts-expect-error - Private method
       const handleTabUpdatedSpy = vi.spyOn(handler, "handleTabUpdated");
@@ -215,6 +230,33 @@ describe("ShadowRootEventHandler", () => {
           },
         },
         "*"
+      );
+    });
+  });
+
+  describe("handleOpenMessageModal", () => {
+    it("should open the message modal", () => {
+      const mockCustomEvent = vi.fn();
+      const mockDispatchEvent = vi.fn();
+      global.CustomEvent = mockCustomEvent;
+      global.dispatchEvent = mockDispatchEvent;
+      const message: AppMessageEvents = {
+        type: AppMessageTypes.OpenMessageModal,
+        payload: {},
+      };
+      // @ts-expect-error - Private method
+      handler.handleOpenMessageModal(message.payload);
+      expect(mockCustomEvent).toHaveBeenCalledWith(
+        AppMessageTypes.OpenMessageModal,
+        {
+          detail: message.payload,
+        }
+      );
+
+      expect(mockDispatchEvent).toHaveBeenCalledWith(
+        new mockCustomEvent(AppMessageTypes.OpenMessageModal, {
+          detail: message.payload,
+        })
       );
     });
   });

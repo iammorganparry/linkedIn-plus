@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "@webcomponents/custom-elements";
 import css from "./index.css?inline";
-import { ShadowRootEventHandler } from "./services/shadowRootEventHandler";
+import { ShadowRootMessageHandler } from "./services/shadowRootMessageHandler";
 import { ContentMessenger } from "./services/content";
 import { Iframe } from "./iframe";
 import { profileService } from "./services/linkedInProfile";
@@ -20,7 +20,7 @@ export class LinkedInPlus extends HTMLElement {
 
     const contentMessenger = new ContentMessenger();
     contentMessenger.init();
-    const iframeMessenger = new ShadowRootEventHandler(profileService);
+    const iframeMessenger = new ShadowRootMessageHandler(profileService);
     iframeMessenger.listen();
 
     ReactDOM.createRoot(root, {

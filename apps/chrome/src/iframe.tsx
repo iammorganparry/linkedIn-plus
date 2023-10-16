@@ -1,8 +1,7 @@
 import { CSSProperties, useEffect, useRef } from "react";
-import { ShadowRootEventHandler } from "./services/shadowRootEventHandler";
 import { RxDragHandleHorizontal } from "react-icons/rx";
 import Draggable from "react-draggable";
-const IFRAME_URL = import.meta.env.VITE_IFRAME_URL ?? "http://localhost:3000";
+import { IFRAME_URL } from "./consts";
 
 const iframeStyled = {
   width: "400px",
@@ -13,7 +12,7 @@ const iframeStyled = {
 };
 
 type IframeProps = {
-  messenger: ShadowRootEventHandler;
+  messenger: import("./services/shadowRootMessageHandler").ShadowRootMessageHandler;
 };
 export const Iframe = (props: IframeProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);

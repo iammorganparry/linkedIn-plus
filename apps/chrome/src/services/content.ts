@@ -4,6 +4,9 @@ type IContentMessenger = {
   init: () => void;
 };
 
+/**
+ * Handles messages between the content script and the background script.
+ */
 export class ContentMessenger implements IContentMessenger {
   constructor() {}
 

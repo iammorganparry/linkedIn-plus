@@ -6,28 +6,28 @@ import {
 import { LinkedInPublicProfileService } from "./linkedInProfile";
 
 /**
- * This class is responsible for listening to messages from the shadow root iframe and responding to them.
+ * Handles messages between the content script and the iframe (bidirectional)
  */
-export class ShadowRootEventHandler {
+export class ShadowRootMessageHandler {
   private iframe?: HTMLIFrameElement;
   private messageQueue: AppMessageEvents[] = [];
   private timer: NodeJS.Timeout | null = null;
   constructor(private linkedInProfileService: LinkedInPublicProfileService) {}
 
   public listen() {
-    console.log("ShadowRootEventHandler listen");
+    console.log("ShadowRootMessageHandler listen");
     window.addEventListener("message", this.onMessage.bind(this));
   }
 
   public attachIframe(iframe: HTMLIFrameElement) {
-    console.log("ShadowRootEventHandler attachIframe");
+    console.log("ShadowRootMessageHandler attachIframe");
     this.iframe = iframe;
   }
 
   private handleTabUpdated(
     payload: AppMessageEvents<AppMessageTypes.TabUpdated>["payload"]
   ) {
-    console.log("tab updated -- ShadowRootEventHandler", payload);
+    console.log("tab updated -- ShadowRootMessageHandler", payload);
     this?.postMessage({
       type: AppMessageTypes.TabUpdated,
       payload: {
@@ -43,7 +43,7 @@ export class ShadowRootEventHandler {
   private async handleFetchLinkedInProfile(
     payload: AppMessageEvents<AppMessageTypes.FetchLinkedInProfile>["payload"]
   ) {
-    console.log("fetch linkedin profile -- ShadowRootEventHandler", payload);
+    console.log("fetch linkedin profile -- ShadowRootMessageHandler", payload);
     const data = await this.linkedInProfileService.getProfileByAlias(
       payload.alias,
       payload.includes
@@ -57,7 +57,7 @@ export class ShadowRootEventHandler {
   private handleFetchCurrentUrl(
     payload: AppMessageEvents<AppMessageTypes.FetchCurrentUrl>["payload"]
   ) {
-    console.log("fetch current url -- ShadowRootEventHandler", payload);
+    console.log("fetch current url -- ShadowRootMessageHandler", payload);
     this.postMessage({
       type: AppMessageTypes.FetchCurrentUrl,
       payload: {
@@ -65,6 +65,16 @@ export class ShadowRootEventHandler {
           url: window.location.href,
         },
       },
+    });
+  }
+
+  private handleOpenMessageModal(
+    payload: AppMessageEvents<AppMessageTypes.OpenMessageModal>["payload"]
+  ) {
+    console.log("open message modal -- ShadowRootMessageHandler", payload);
+    this.dispatchEvent({
+      type: AppMessageTypes.OpenMessageModal,
+      payload,
     });
   }
 
@@ -93,8 +103,12 @@ export class ShadowRootEventHandler {
           this.handleTabUpdated(message.payload);
         }
         if (isOfType(message, AppMessageTypes.FetchLinkedInProfile)) {
-          console.log("fetch linkedin profile -- ShadowRootEventHandler");
+          console.log("fetch linkedin profile -- ShadowRootMessageHandler");
           this.handleFetchLinkedInProfile(message.payload);
+        }
+        if (isOfType(message, AppMessageTypes.OpenMessageModal)) {
+          console.log("open message modal -- ShadowRootMessageHandler");
+          this.handleOpenMessageModal(message.payload);
         }
       }
     }
@@ -116,6 +130,14 @@ export class ShadowRootEventHandler {
         console.log("onMessage error", error);
       }
     });
+  }
+
+  private dispatchEvent(message: AppMessageEvents) {
+    window.dispatchEvent(
+      new CustomEvent(message.type, {
+        detail: message.payload,
+      })
+    );
   }
 
   private postMessage(message: AppMessageEvents) {
