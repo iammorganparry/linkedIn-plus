@@ -10,6 +10,8 @@ import { LinkedInPublicProfileService } from "./linkedInProfile";
  */
 export class ShadowRootEventHandler {
   private iframe?: HTMLIFrameElement;
+  private messageQueue: AppMessageEvents[] = [];
+  private timer: NodeJS.Timeout | null = null;
   constructor(private linkedInProfileService: LinkedInPublicProfileService) {}
 
   public listen() {
@@ -66,21 +68,54 @@ export class ShadowRootEventHandler {
     });
   }
 
-  private onMessage(event: MessageEvent<AppMessageEvents>) {
-    try {
-      if (isOfType(event.data, AppMessageTypes.FetchCurrentUrl)) {
-        this.handleFetchCurrentUrl(event.data.payload);
+  private addToQueue(message: AppMessageEvents) {
+    console.log("addToQueue", message);
+    this.messageQueue.push(message);
+    // after 1 second, process the queue
+  }
+
+  private processQueue() {
+    console.log("processQueue");
+    while (this.messageQueue.length) {
+      // filter out duplicates
+      const filteredMessages = this.messageQueue.filter(
+        (message, index, self) =>
+          index === self.findIndex((m) => m.type === message.type)
+      );
+      this.messageQueue = filteredMessages;
+
+      const message = this.messageQueue.shift();
+      if (message) {
+        if (isOfType(message, AppMessageTypes.FetchCurrentUrl)) {
+          this.handleFetchCurrentUrl(message.payload);
+        }
+        if (isOfType(message, AppMessageTypes.TabUpdated)) {
+          this.handleTabUpdated(message.payload);
+        }
+        if (isOfType(message, AppMessageTypes.FetchLinkedInProfile)) {
+          console.log("fetch linkedin profile -- ShadowRootEventHandler");
+          this.handleFetchLinkedInProfile(message.payload);
+        }
       }
-      if (isOfType(event.data, AppMessageTypes.TabUpdated)) {
-        this.handleTabUpdated(event.data.payload);
-      }
-      if (isOfType(event.data, AppMessageTypes.FetchLinkedInProfile)) {
-        console.log("fetch linkedin profile -- ShadowRootEventHandler");
-        this.handleFetchLinkedInProfile(event.data.payload);
-      }
-    } catch (error) {
-      console.log("onMessage error", error);
     }
+  }
+
+  private onMessage(event: MessageEvent<AppMessageEvents>) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.addToQueue(event.data);
+        if (this.timer) {
+          clearTimeout(this.timer);
+        }
+        setTimeout(() => {
+          this.processQueue();
+          resolve(true);
+        }, 500);
+      } catch (error) {
+        reject();
+        console.log("onMessage error", error);
+      }
+    });
   }
 
   private postMessage(message: AppMessageEvents) {

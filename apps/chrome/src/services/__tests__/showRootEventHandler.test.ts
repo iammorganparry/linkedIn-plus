@@ -3,7 +3,7 @@ import { LinkedInPublicProfileService } from "../linkedInProfile";
 import { describe } from "node:test";
 import { expect, it, vi } from "vitest";
 import { createLinkedInProfileResponse } from "../../../__tests__/utils";
-import { AppMessageTypes } from "@linkedinplus/shared";
+import { AppMessageEvents, AppMessageTypes } from "@linkedinplus/shared";
 
 const mockService = {
   getProfileByAlias: vi.fn(),
@@ -83,15 +83,64 @@ describe("ShadowRootEventHandler", () => {
     });
   });
 
+  describe("addToQueue", () => {
+    it("should add a message to the queue", () => {
+      const message: AppMessageEvents = {
+        type: AppMessageTypes.FetchCurrentUrl,
+        payload: {},
+      };
+      // @ts-expect-error - Private method
+      handler.addToQueue(message);
+      expect(handler["messageQueue"]).toContain(message);
+    });
+  });
+
+  describe("processQueue", () => {
+    it("should process the message queue", () => {
+      const message1: AppMessageEvents = {
+        type: AppMessageTypes.FetchCurrentUrl,
+        payload: {},
+      };
+      const message2: AppMessageEvents = {
+        type: AppMessageTypes.TabUpdated,
+        payload: {},
+      };
+      // @ts-expect-error - Private method
+      handler.addToQueue(message1);
+      // @ts-expect-error - Private method
+      handler.addToQueue(message2);
+      // @ts-expect-error - Private method
+      handler.processQueue();
+      expect(handler["messageQueue"]).toEqual([]);
+    });
+  });
+
   describe("onMessage", () => {
-    it("should call handleFetchCurrentUrl if the message type is FetchCurrentUrl", () => {
+    it("should add a message to the queue and process the queue", async () => {
+      const message: AppMessageEvents = {
+        type: AppMessageTypes.FetchCurrentUrl,
+        payload: {},
+      };
+      // @ts-expect-error - Private method
+      const spyAddToQueue = vi.spyOn(handler, "addToQueue");
+      // @ts-expect-error - Private method
+      const spyProcessQueue = vi.spyOn(handler, "processQueue");
+      // @ts-expect-error - Private method
+      await handler.onMessage({
+        data: message,
+      } as MessageEvent<AppMessageEvents>);
+      expect(spyAddToQueue).toHaveBeenCalledWith(message);
+      expect(spyProcessQueue).toHaveBeenCalled();
+    });
+
+    it("should call handleFetchCurrentUrl if the message type is FetchCurrentUrl", async () => {
       const handleFetchCurrentUrlSpy = vi.spyOn(
         handler,
         // @ts-expect-error - Private method
         "handleFetchCurrentUrl"
       );
       // @ts-expect-error - Private method
-      handler.onMessage({
+      await handler.onMessage({
         data: {
           type: AppMessageTypes.FetchCurrentUrl,
         },
@@ -99,26 +148,32 @@ describe("ShadowRootEventHandler", () => {
       expect(handleFetchCurrentUrlSpy).toHaveBeenCalled();
     });
 
-    it("should call handleTabUpdated if the message type is TabUpdated", () => {
+    it("should call handleTabUpdated if the message type is TabUpdated", async () => {
       // @ts-expect-error - Private method
       const handleTabUpdatedSpy = vi.spyOn(handler, "handleTabUpdated");
       // @ts-expect-error - Private method
-      handler.onMessage({
+      await handler.onMessage({
         data: {
           type: AppMessageTypes.TabUpdated,
+          payload: {
+            tabId: 1,
+            changeInfo: {
+              url: "https://example.com",
+            },
+          },
         },
       } as MessageEvent);
       expect(handleTabUpdatedSpy).toHaveBeenCalled();
     });
 
-    it("should call handleFetchLinkedInProfile if the message type is FetchLinkedInProfile", () => {
+    it("should call handleFetchLinkedInProfile if the message type is FetchLinkedInProfile", async () => {
       const handleFetchLinkedInProfileSpy = vi.spyOn(
         handler,
         // @ts-expect-error - Private method
         "handleFetchLinkedInProfile"
       );
       // @ts-expect-error - Private method
-      handler.onMessage({
+      await handler.onMessage({
         data: {
           type: AppMessageTypes.FetchLinkedInProfile,
           payload: {
